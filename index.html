@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Emoji Secret Encoder</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+background:#0a0a0a;
+color:#00ff88;
+font-family:monospace;
+text-align:center;
+margin:0;
+padding:20px;
+}
+
+/* Container */
+
+.container{
+max-width:700px;
+width:100%;
+margin:auto;
+background:#111;
+padding:25px;
+border-radius:12px;
+box-shadow:0 0 15px rgba(0,255,136,0.2);
+}
+
+/* Inputs */
+
+textarea,input{
+width:100%;
+padding:12px;
+margin:10px 0;
+background:#000;
+color:#00ff88;
+border:1px solid #00ff88;
+border-radius:6px;
+font-size:14px;
+}
+
+/* Buttons */
+
+button{
+background:#00ff88;
+border:none;
+padding:12px;
+width:100%;
+font-weight:bold;
+cursor:pointer;
+margin-top:8px;
+border-radius:6px;
+font-size:15px;
+transition:0.2s;
+}
+
+button:hover{
+background:#00cc6f;
+}
+
+/* Result box */
+
+.result{
+background:#000;
+padding:15px;
+margin-top:15px;
+word-break:break-all;
+border-radius:6px;
+min-height:40px;
+}
+
+/* Divider */
+
+hr{
+margin:25px 0;
+border:0;
+border-top:1px solid #00ff88;
+opacity:0.3;
+}
+
+/* Footer */
+
+.footer{
+margin-top:30px;
+font-size:13px;
+opacity:0.7;
+}
+
+/* Responsive */
+
+@media (max-width:600px){
+
+body{
+padding:15px;
+}
+
+.container{
+padding:18px;
+}
+
+h2{
+font-size:20px;
+}
+
+h3{
+font-size:16px;
+}
+
+textarea,input{
+font-size:13px;
+}
+
+button{
+font-size:14px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🔐 Emoji Hidden Message Tool</h2>
+
+<h3>Hide Message</h3>
+
+<input id="emojiInput" placeholder="Visible emojis (ex: 😎🔥)" />
+
+<textarea id="secretInput" placeholder="Secret message"></textarea>
+
+<button onclick="encode()">Encrypt</button>
+
+<div class="result" id="encoded"></div>
+
+<button onclick="copyEncoded()">📋 Copy Encrypted Emojis</button>
+
+<hr>
+
+<h3>Reveal Message</h3>
+
+<textarea id="decodeInput" placeholder="Paste encoded emojis"></textarea>
+
+<button onclick="decode()">Decrypt</button>
+
+<div class="result" id="decoded"></div>
+
+</div>
+
+<div class="footer">
+Made by <b>v4nsh0x</b> • just for fun 😄
+</div>
+
+<script>
+
+const ZWSP = "\u200B";
+const ZWNJ = "\u200C";
+
+function textToBinary(text){
+return text.split('').map(c =>
+c.charCodeAt(0).toString(2).padStart(8,'0')
+).join('');
+}
+
+function binaryToText(binary){
+let text="";
+for(let i=0;i<binary.length;i+=8){
+let byte=binary.slice(i,i+8);
+text+=String.fromCharCode(parseInt(byte,2));
+}
+return text;
+}
+
+function encode(){
+
+let emojis=document.getElementById("emojiInput").value;
+let secret=document.getElementById("secretInput").value;
+
+let binary=textToBinary(secret);
+
+let hidden=binary.replace(/0/g,ZWSP).replace(/1/g,ZWNJ);
+
+let result=emojis + hidden;
+
+document.getElementById("encoded").innerText=result;
+
+}
+
+function decode(){
+
+let input=document.getElementById("decodeInput").value;
+
+let binary="";
+
+for(let char of input){
+
+if(char===ZWSP) binary+="0";
+if(char===ZWNJ) binary+="1";
+
+}
+
+let message=binaryToText(binary);
+
+document.getElementById("decoded").innerText=message;
+
+}
+
+function copyEncoded(){
+
+let text=document.getElementById("encoded").innerText;
+
+navigator.clipboard.writeText(text).then(()=>{
+alert("Encrypted emojis copied!");
+});
+
+}
+
+</script>
+
+</body>
+</html>
