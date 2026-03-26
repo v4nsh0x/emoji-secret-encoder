@@ -3,14 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Emoji Secret Encoder</title>
 
 <style>
-
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
 background:#0a0a0a;
@@ -21,8 +17,6 @@ margin:0;
 padding:20px;
 }
 
-/* Container */
-
 .container{
 max-width:700px;
 width:100%;
@@ -32,8 +26,6 @@ padding:25px;
 border-radius:12px;
 box-shadow:0 0 15px rgba(0,255,136,0.2);
 }
-
-/* Inputs */
 
 textarea,input{
 width:100%;
@@ -46,8 +38,6 @@ border-radius:6px;
 font-size:14px;
 }
 
-/* Buttons */
-
 button{
 background:#00ff88;
 border:none;
@@ -58,14 +48,11 @@ cursor:pointer;
 margin-top:8px;
 border-radius:6px;
 font-size:15px;
-transition:0.2s;
 }
 
 button:hover{
 background:#00cc6f;
 }
-
-/* Result box */
 
 .result{
 background:#000;
@@ -76,8 +63,6 @@ border-radius:6px;
 min-height:40px;
 }
 
-/* Divider */
-
 hr{
 margin:25px 0;
 border:0;
@@ -85,44 +70,25 @@ border-top:1px solid #00ff88;
 opacity:0.3;
 }
 
-/* Footer */
-
 .footer{
 margin-top:30px;
 font-size:13px;
 opacity:0.7;
 }
 
-/* Responsive */
-
 @media (max-width:600px){
-
-body{
-padding:15px;
-}
 
 .container{
 padding:18px;
 }
 
-h2{
-font-size:20px;
-}
+h2{font-size:20px}
+h3{font-size:16px}
 
-h3{
-font-size:16px;
-}
-
-textarea,input{
-font-size:13px;
-}
-
-button{
-font-size:14px;
-}
+textarea,input{font-size:13px}
+button{font-size:14px}
 
 }
-
 </style>
 </head>
 
@@ -157,63 +123,58 @@ font-size:14px;
 </div>
 
 <div class="footer">
-Made by <b>v4nsh0x</b> • just for fun 😄
+Made by <b>Vansh Saxena</b> • just for fun 😄
 </div>
 
 <script>
 
-const ZWSP = "\u200B";
-const ZWNJ = "\u200C";
+// Variation Selector base
+const VS_BASE = 0xE0100;
 
-function textToBinary(text){
-return text.split('').map(c =>
-c.charCodeAt(0).toString(2).padStart(8,'0')
-).join('');
-}
-
-function binaryToText(binary){
-let text="";
-for(let i=0;i<binary.length;i+=8){
-let byte=binary.slice(i,i+8);
-text+=String.fromCharCode(parseInt(byte,2));
-}
-return text;
-}
-
+// encode text → variation selectors
 function encode(){
 
 let emojis=document.getElementById("emojiInput").value;
 let secret=document.getElementById("secretInput").value;
 
-let binary=textToBinary(secret);
+let encoded=emojis;
 
-let hidden=binary.replace(/0/g,ZWSP).replace(/1/g,ZWNJ);
+for(let i=0;i<secret.length;i++){
 
-let result=emojis + hidden;
+let code=secret.charCodeAt(i);
 
-document.getElementById("encoded").innerText=result;
+encoded+=String.fromCodePoint(VS_BASE + code);
 
 }
 
+document.getElementById("encoded").innerText=encoded;
+
+}
+
+// decode variation selectors → text
 function decode(){
 
 let input=document.getElementById("decodeInput").value;
 
-let binary="";
+let message="";
 
 for(let char of input){
 
-if(char===ZWSP) binary+="0";
-if(char===ZWNJ) binary+="1";
+let code=char.codePointAt(0);
+
+if(code>=VS_BASE && code<=VS_BASE+255){
+
+message+=String.fromCharCode(code - VS_BASE);
 
 }
 
-let message=binaryToText(binary);
+}
 
-document.getElementById("decoded").innerText=message;
+document.getElementById("decoded").innerText=message || "No hidden message found";
 
 }
 
+// copy button
 function copyEncoded(){
 
 let text=document.getElementById("encoded").innerText;
